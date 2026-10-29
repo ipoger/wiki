@@ -13,7 +13,26 @@
 - **干净 URL**：`notes/foo.md` → `notes/foo/`，且部署在子路径下链接也不会坏。
 - **够用的排版**：KaTeX 公式、highlight.js 代码高亮、表格、脚注式引用。
 - **站内搜索**：构建时生成 JSON 索引，浏览器里匹配，无需服务端。
+- **站内终端**：`/terminal/` 提供一个虚拟 shell，用 `ls` / `cd` / `cat` / `find` 浏览全部页面。
+- **可勾选清单**：学习路线里的任务可以直接打勾，状态存在浏览器本地。
 - **自动发布**：push 到 `main` 后由 GitHub Actions 部署到 Pages。
+
+## 站内终端
+
+打开 <https://ipoger.github.io/wiki/terminal/>，或者在导航里点「终端」。
+
+```text
+$ help
+$ ls
+$ cd projects/ai-infra-study
+$ cat week-by-week
+$ find 上下文
+$ open roadmap
+```
+
+支持 `Tab` 补全路径、`↑` / `↓` 翻历史、`Ctrl+L` 清屏。文件系统在构建时由 `content/` 生成，新增页面会自动出现在终端里。
+
+![终端](docs/terminal.png)
 
 ## 本地开发
 
@@ -32,14 +51,15 @@ npm run dev       # 构建并启动 http://localhost:4173
 ├── content/               # Markdown 源文件
 │   ├── index.md           # 首页
 │   ├── notes/             # 笔记
-│   ├── projects/          # 项目
+│   ├── projects/          # 项目（含 AI Infra 学习路线）
 │   ├── reading/           # 阅读清单
+│   ├── terminal/          # 虚拟终端
 │   └── search/            # 搜索页
 ├── src/
 │   ├── layout.mjs         # HTML 模板
 │   ├── markdown.mjs       # Markdown → HTML
 │   └── url.mjs            # 链接解析
-├── public/                # 原样拷贝的静态资源
+├── public/                # 静态资源、下载包、终端脚本
 └── .github/workflows/     # GitHub Pages 部署
 ```
 

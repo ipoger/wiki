@@ -89,18 +89,42 @@ export function renderMarkdown(markdown, { sourceRel, outDir }) {
   return html;
 }
 
-/** Plain text for the client-side search index. */
-export function htmlToText(html) {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
+function decodeEntities(text) {
+  return text
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
-    .replace(/&#x27;|&#39;/g, "'")
+    .replace(/&#x27;|&#39;/g, "'");
+}
+
+/** Plain text for the client-side search index (single line). */
+export function htmlToText(html) {
+  return decodeEntities(
+    html
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<[^>]+>/g, ' '),
+  )
     .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Plain text that keeps block boundaries, for the terminal's `cat`. */
+export function htmlToPlain(html) {
+  const withBreaks = html
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '\n- ')
+    .replace(/<\/(p|h[1-6]|li|tr|blockquote|div|pre|table)>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ');
+  return decodeEntities(withBreaks)
+    .split('\n')
+    .map((line) => line.replace(/[ \t]+/g, ' ').trim())
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/\n{2,}(?=- )/g, '\n')
     .trim();
 }

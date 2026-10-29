@@ -76,7 +76,11 @@ ${html}
     </p>
   </div>
 </footer>
+<script src="${root}assets/tasks.js" defer></script>
 <script src="${root}assets/app.js" defer></script>
+${(page.scripts || [])
+  .map((script) => `<script src="${root}assets/${escapeHtml(script)}" defer></script>`)
+  .join('\n')}
 </body>
 </html>
 `;

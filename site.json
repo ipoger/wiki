@@ -12,6 +12,7 @@
     { "label": "笔记", "path": "notes/" },
     { "label": "项目", "path": "projects/" },
     { "label": "阅读", "path": "reading/" },
+    { "label": "终端", "path": "terminal/" },
     { "label": "关于", "path": "about/" }
   ]
 }

@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
-import { renderMarkdown, htmlToText } from './src/markdown.mjs';
+import { renderMarkdown, htmlToText, htmlToPlain } from './src/markdown.mjs';
 import { renderPage } from './src/layout.mjs';
 import { outDirForSource } from './src/url.mjs';
 
@@ -61,6 +61,7 @@ if (!files.length) throw new Error('no Markdown files in content/');
 
 const pages = [];
 const searchEntries = [];
+const terminalPages = [];
 
 for (const file of files) {
   const sourceRel = path.relative(CONTENT, file).split(path.sep).join('/');
@@ -71,6 +72,7 @@ for (const file of files) {
   const title = data.title || firstHeading(content) || sourceRel;
   const description = data.description || firstParagraph(content) || site.description;
   const url = outDir ? `${outDir}/` : '';
+  const scripts = Array.isArray(data.scripts) ? data.scripts.map(String) : [];
   const html = renderMarkdown(content, { sourceRel, outDir });
 
   const outFile = path.join(DIST, outDir, 'index.html');
@@ -79,12 +81,18 @@ for (const file of files) {
     outFile,
     renderPage({
       site,
-      page: { title, description, url, outDir },
+      page: { title, description, url, outDir, scripts },
       html,
     }),
   );
 
   pages.push({ sourceRel, outDir, url, title });
+  terminalPages.push({
+    path: outDir ? `/${outDir}` : '/',
+    title,
+    url,
+    text: htmlToPlain(html).slice(0, 12000),
+  });
   if (sourceRel !== 'search/index.md') {
     const section = url.split('/')[0] || '首页';
     searchEntries.push({
@@ -120,6 +128,12 @@ fs.copyFileSync(
 fs.writeFileSync(
   path.join(DIST, 'search-index.json'),
   JSON.stringify(searchEntries, null, 0),
+);
+
+// Virtual filesystem for the in-browser terminal.
+fs.writeFileSync(
+  path.join(DIST, 'terminal-fs.json'),
+  JSON.stringify({ pages: terminalPages }, null, 0),
 );
 
 // GitHub Pages: do not run Jekyll.
