@@ -1,0 +1,19 @@
+{
+  "name": "wiki",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A small Markdown wiki in the spirit of jyywiki.cn",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs && python3 -m http.server 4173 --directory dist",
+    "serve": "python3 -m http.server 4173 --directory dist"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "highlight.js": "^11.12.0",
+    "katex": "^0.19.1",
+    "marked": "^18.1.2"
+  }
+}

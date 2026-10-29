@@ -1,0 +1,17 @@
+{
+  "brand": "May's wiki",
+  "title": "May's Wiki",
+  "description": "系统、工具与 AI 的笔记。纯文本写作，静态发布。",
+  "author": "May",
+  "github": "https://github.com/ipoger/wiki",
+  "license": {
+    "name": "CC BY-NC 4.0",
+    "url": "https://creativecommons.org/licenses/by-nc/4.0/"
+  },
+  "nav": [
+    { "label": "笔记", "path": "notes/" },
+    { "label": "项目", "path": "projects/" },
+    { "label": "阅读", "path": "reading/" },
+    { "label": "关于", "path": "about/" }
+  ]
+}

@@ -1,0 +1,377 @@
+/* Fonts: same family choices as jyywiki, with system fallbacks. */
+@import url("https://fonts.font.im/css?family=Kalam|Merienda+One|Fira+Mono");
+
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #0f172a;
+  --heading: #111827;
+  --muted: #64748b;
+  --link: #3730a3;
+  --link-hover: #4c1d95;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --code-bg: #f6f8fa;
+  --inline-code: #0f172a;
+  --header-bg: rgba(255, 255, 255, 0.78);
+  --footer-bg: #fafafa;
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --font-body: "Kalam", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-heading: "Merienda One", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "Fira Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0f14;
+    --card: #111820;
+    --text: #dbe3ee;
+    --heading: #f1f5f9;
+    --muted: #94a3b8;
+    --link: #a5b4fc;
+    --link-hover: #c4b5fd;
+    --border: #263241;
+    --border-strong: #334155;
+    --code-bg: #0d141d;
+    --inline-code: #e2e8f0;
+    --header-bg: rgba(11, 15, 20, 0.78);
+    --footer-bg: #0d131a;
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.45), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
+a:hover { color: var(--link-hover); }
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--card);
+  padding: 8px 12px;
+  z-index: 100;
+}
+.skip-link:focus { left: 8px; top: 8px; }
+
+/* ---------- header ---------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--header-bg);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.brand:hover { color: var(--text); }
+
+.token {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-left: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.token label { font-family: var(--font-body); }
+.token input {
+  width: 82px;
+  padding: 2px 4px;
+  border: 0;
+  border-bottom: 1px dashed var(--border-strong);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  outline: none;
+}
+.token input:focus { border-bottom-color: var(--link); }
+.token input::placeholder { color: var(--muted); opacity: 0.7; }
+
+.site-nav { margin-left: 4px; }
+.site-nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin: 0;
+  padding: 0 0 0 18px;
+  border-left: 1px solid var(--border);
+}
+.nav-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nav-link:hover { color: var(--link); }
+.nav-link.active { color: var(--text); }
+.nav-search { display: none; }
+
+/* ---------- page card ---------- */
+
+.container {
+  width: 100%;
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0 16px;
+  flex: 1 0 auto;
+}
+
+.wiki {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 40px 40px 72px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.wiki > :first-child { margin-top: 0; }
+
+.wiki h1,
+.wiki h2,
+.wiki h3,
+.wiki h4 {
+  font-family: var(--font-heading);
+  color: var(--heading);
+  line-height: 1.35;
+  scroll-margin-top: 80px;
+}
+
+.wiki h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 1.2em;
+  letter-spacing: 0.01em;
+}
+
+.wiki h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 2em 0 0.85em;
+}
+
+.wiki h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 1.8em 0 0.6em;
+}
+
+.wiki h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 1.6em 0 0.5em;
+}
+
+.wiki p { margin: 1.05em 0; }
+
+.wiki strong { font-weight: 700; color: var(--heading); }
+.wiki em { font-style: italic; }
+
+.wiki a { font-weight: 500; }
+
+.wiki ul,
+.wiki ol {
+  margin: 1.05em 0;
+  padding-left: 1.7em;
+}
+.wiki ul { list-style: disc; }
+.wiki ol { list-style: decimal; }
+.wiki li { margin: 0.35em 0; padding-left: 0.1em; }
+.wiki li::marker { color: #94a3b8; }
+.wiki li > ul,
+.wiki li > ol { margin: 0.25em 0; }
+
+.wiki blockquote {
+  margin: 1.5em 0;
+  padding: 0.15em 0 0.15em 1em;
+  border-left: 4px solid var(--border);
+  color: #475569;
+  font-style: italic;
+}
+@media (prefers-color-scheme: dark) {
+  .wiki blockquote { color: #cbd5e1; }
+}
+.wiki blockquote p { margin: 0.4em 0; }
+
+.wiki hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 2.5em 0;
+}
+
+.wiki img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.8em auto;
+}
+
+.wiki table {
+  width: 100%;
+  margin: 1.5em 0;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.wiki th,
+.wiki td {
+  border: 1px solid var(--border);
+  padding: 7px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+.wiki th {
+  background: color-mix(in srgb, var(--border) 30%, transparent);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Inline code, jyy-style backticks */
+.wiki :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  color: var(--inline-code);
+  word-break: break-word;
+}
+.wiki :not(pre) > code::before,
+.wiki :not(pre) > code::after {
+  content: "`";
+  color: #94a3b8;
+}
+
+.wiki pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin: 1.4em 0;
+  overflow-x: auto;
+  line-height: 1.55;
+}
+.wiki pre code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: none;
+  padding: 0;
+  border: 0;
+}
+.wiki pre code::before,
+.wiki pre code::after { content: none; }
+
+.wiki .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.4em 0;
+}
+
+.wiki .muted { color: var(--muted); font-size: 14px; }
+
+/* Search results */
+.search-results { margin: 1.2em 0; }
+.search-results .result {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.search-results .result:last-child { border-bottom: 0; }
+.search-results .result-title {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+.search-results .result-meta {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.search-results .result-snippet {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ---------- footer ---------- */
+
+.site-footer {
+  flex-shrink: 0;
+  background: var(--footer-bg);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+.footer-inner {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 22px 16px;
+}
+.footer-inner p { margin: 0; }
+.footer-inner a { color: var(--muted); }
+.footer-inner a:hover { color: var(--link); }
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 820px) {
+  .token { display: none; }
+  .nav-search { display: block; }
+  .header-inner { padding: 12px 16px; gap: 10px; }
+  .site-nav ul { gap: 16px; padding-left: 14px; }
+  .nav-link { font-size: 13px; }
+}
+
+@media (max-width: 640px) {
+  .brand { font-size: 15px; }
+  .site-nav ul { gap: 13px; padding-left: 12px; }
+  .wiki {
+    padding: 26px 20px 56px;
+    font-size: 15.5px;
+  }
+  .wiki h1 { font-size: 22px; }
+  .wiki h2 { font-size: 19px; }
+  .wiki table { font-size: 13px; }
+  .wiki th, .wiki td { padding: 6px 8px; }
+}
