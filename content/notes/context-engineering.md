@@ -1,6 +1,7 @@
 ---
 title: 上下文工程：Agent 的隐形架构
 description: 模型能力之外，决定 Agent 表现的是每一步能看到什么。
+date: 2026-10-24
 ---
 
 # 上下文工程：Agent 的隐形架构

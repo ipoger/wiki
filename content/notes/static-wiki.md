@@ -1,6 +1,7 @@
 ---
 title: 用几百行搭一个 Wiki
 description: 本站的构建脚本、干净 URL、公式与搜索是怎么做的。
+date: 2026-10-29
 ---
 
 # 用几百行搭一个 Wiki

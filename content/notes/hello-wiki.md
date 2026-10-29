@@ -1,6 +1,7 @@
 ---
 title: 把博客搬回 Markdown
 description: 为什么这个站点没有数据库、没有后台，只有一堆 .md 文件。
+date: 2026-10-29
 ---
 
 # 把博客搬回 Markdown

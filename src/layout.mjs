@@ -8,13 +8,20 @@ const escapeHtml = (s) =>
     .replace(/"/g, '&quot;');
 
 export function renderPage({ site, page, html }) {
-  const { outDir, title, description } = page;
+  const { outDir, title, description, sourceRel } = page;
   const root = relUrl(outDir, '');
   const home = root;
   const search = relUrl(outDir, 'search/');
   const fullTitle =
     title && title !== site.title ? `${title} · ${site.title}` : site.title;
   const desc = description || site.description;
+  const editUrl =
+    site.github && sourceRel
+      ? `${site.github}/edit/main/content/${sourceRel
+          .split('/')
+          .map(encodeURIComponent)
+          .join('/')}`
+      : '';
 
   const nav = site.nav
     .map((item) => {
@@ -69,6 +76,7 @@ export function renderPage({ site, page, html }) {
 <main class="container" id="content">
   <article class="wiki">
 ${html}
+${editUrl ? `    <p class="page-edit"><a href="${escapeHtml(editUrl)}">编辑此页</a> · GitHub</p>` : ''}
   </article>
 </main>
 <footer class="site-footer">

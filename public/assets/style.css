@@ -704,3 +704,32 @@ body.terminal-open { overflow: hidden; }
   .terminal-backdrop,
   .terminal-dialog { transition: none; }
 }
+
+/* ---------- writing ---------- */
+
+.wiki .recent-list time,
+.wiki .note-list time {
+  margin-right: 2px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.wiki .note-desc {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.wiki .page-edit {
+  margin: 3em 0 0;
+  padding-top: 1em;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+}
+.wiki .page-edit a {
+  color: var(--muted);
+  font-weight: 400;
+}
+.wiki .page-edit a:hover { color: var(--link); }

@@ -1,6 +1,7 @@
 ---
 title: AI Infra 学习路线
 description: 给会 Python、数学生疏、有本地 Nvidia GPU 的同学：一份 17 周、可执行、带计算工具的学习计划。
+date: 2026-10-29
 ---
 
 # AI Infra 学习路线

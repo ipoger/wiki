@@ -11,11 +11,7 @@ description: 系统、工具与 AI 的笔记。纯文本写作，静态发布。
 
 ## 最近更新
 
-- 2026-10-29 [AI Infra 学习路线](projects/ai-infra-study/index.md) — 17 周，从成本直觉到训练/推理系统。
-- 2026-10-29 [把博客搬回 Markdown](notes/hello-wiki.md)
-- 2026-10-29 [用几百行搭一个 Wiki](notes/static-wiki.md)
-- 2026-10-24 [上下文工程：Agent 的隐形架构](notes/context-engineering.md)
-- 2026-10-18 [操作系统的三个抽象](notes/os-three-abstractions.md)
+<!-- recent -->
 
 ## 从这里开始
 
