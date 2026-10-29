@@ -7,9 +7,9 @@ description: 用 Markdown 写内容，生成蒋炎岩风格的网页幻灯片。
 
 用 Markdown 写内容，一条命令生成和参考图同一套主题的网页幻灯片（reveal.js），可导出 PDF，也可以直接部署到 GitHub Pages。
 
-![预览](https://raw.githubusercontent.com/ipoger/slides-template/main/docs/preview.png)
+![预览](/assets/img/slides-preview.png)
 
-> 参考图里那页“我是谁？”来自南京大学蒋炎岩（jyy）老师的 reveal.js 幻灯片。这个仓库是一个**可 fork 的定制版**：把名字、单位、颜色换掉，就是你们自己的模板。
+> 参考图里那页“我是谁？”来自南京大学蒋炎岩（jyy）老师的 reveal.js 幻灯片。这个模板是**可 fork 的定制版**：把名字、单位、颜色换掉，就是你们自己的模板。
 
 ## 它从哪来
 
@@ -28,7 +28,6 @@ description: 用 Markdown 写内容，生成蒋炎岩风格的网页幻灯片。
 需要 Python 3.10+。
 
 ```bash
-git clone https://github.com/ipoger/slides-template.git
 cd slides-template
 
 bash scripts/setup.sh     # 第一次：创建 .venv 并安装依赖
@@ -64,4 +63,4 @@ institute: Your University
 
 缺点是排版自由度不如 Keynote，但对技术演讲来说，约束反而是好事。
 
-源码和完整说明：[github.com/ipoger/slides-template](https://github.com/ipoger/slides-template)。
+模板基于上游 [zweix123/jyyslide-md](https://github.com/zweix123/jyyslide-md)（MIT）；完整的上游说明和示例见该项目。
