@@ -3,6 +3,7 @@
   "title": "May's Wiki",
   "description": "系统、工具与 AI 的笔记。纯文本写作，静态发布。",
   "author": "May",
+  "url": "https://ipoger.github.io/wiki",
   "github": "https://github.com/ipoger/wiki",
   "license": {
     "name": "CC BY-NC 4.0",

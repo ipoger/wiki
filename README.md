@@ -16,7 +16,7 @@
 - **站内终端**：按 `Ctrl + \`` 弹出浅色终端，用 `ls` / `cd` / `cat` / `find` 浏览全部页面。
 - **可勾选清单**：学习路线里的任务可以直接打勾，状态存在浏览器本地。
 - **学习路线**：内置 17 周 AI Infra 计划，配套计算脚本可单独下载。
-- **写作体验**：`npm run new` 新建、`npm run dev` 保存自动重建、每页底部一键跳 GitHub 编辑。
+- **写作体验**：`npm run write` 一条命令写完、退出编辑器即构建并发布；`npm run dev` 保存自动重建；每页底部可跳 GitHub 编辑。
 - **自动索引**：带 `date` 的页面自动进入首页「最近更新」和笔记索引。
 - **自动发布**：push 到 `main` 后由 GitHub Actions 部署到 Pages。
 
@@ -52,7 +52,9 @@ npm run build     # 只构建到 dist/
 ├── build.mjs              # 构建入口
 ├── site.json              # 站点名、导航、链接
 ├── scripts/
-│   ├── new.mjs            # 交互式新建页面
+│   ├── new.mjs            # 只新建页面
+│   ├── write.mjs          # 新建 → 编辑 → 构建 → 提交 → 推送
+│   ├── lib.mjs            # 共用的提示与模板
 │   └── dev.mjs            # 本地预览 + 文件监听
 ├── content/               # Markdown 源文件
 │   ├── index.md           # 首页
@@ -70,15 +72,36 @@ npm run build     # 只构建到 dist/
 
 ## 怎么写
 
-**1. 在网页上改。** 每页底部都有「编辑此页」，直接跳到 GitHub 的网页编辑器；改完 commit，一分钟内自动上线。适合改错别字和补链接。
-
-**2. 用脚手架新建。** 在本地运行：
+### 一条命令写完并发布（推荐）
 
 ```bash
-npm run new
+npm run write
 ```
 
-依次选择位置（笔记 / 项目 / 阅读）、标题、URL 片段和摘要。它会自动写好 front matter、日期和标题，并提示下一步。新页面会自动出现在首页「最近更新」；放在 `notes/` 下也会自动进笔记索引。
+回答四个问题（位置、标题、URL 片段、摘要），编辑器会打开新文件。**保存并退出编辑器后**，它会自动：
+
+1. 构建站点，构建失败就停下，不提交；
+2. 只把这一篇 Markdown 加入提交；
+3. 提交为 `notes: 标题`（或 `projects:` / `reading:`）；
+4. push 到 GitHub，由 Actions 部署。
+
+编辑器取 `$VISUAL` / `$EDITOR`；没设置时优先 `code --wait`，其次 `nano`，最后 `vi`。
+
+常用变体：
+
+```bash
+npm run write -- notes/why-static-wiki   # 改已有页面，退出后同样自动发布
+npm run write -- --dry-run               # 走完流程并构建，但不提交
+npm run write -- --no-push               # 提交，但不 push
+```
+
+如果打开编辑器后什么都没写就退出，草稿会被删除，不会产生空提交。`npm run w` 是 `npm run write` 的别名。
+
+### 其他方式
+
+**1. 在网页上改。** 每页底部都有「编辑此页」，直接跳到 GitHub 的网页编辑器；改完 commit，一分钟内自动上线。适合改错别字和补链接。
+
+**2. 只新建，不发布。** 运行 `npm run new`，生成带 front matter 和日期的文件，之后自己用编辑器写、用 `npm run dev` 预览。
 
 **3. 用你习惯的编辑器。** 把 `content/` 当作普通文件夹或 Obsidian vault 打开，`npm run dev` 保持预览，保存即重建。没有数据库、没有后台，改的就是最终要发布的 Markdown。
 
