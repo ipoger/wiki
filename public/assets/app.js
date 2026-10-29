@@ -7,6 +7,7 @@
       !event.metaKey &&
       !event.ctrlKey &&
       !event.altKey &&
+      !document.body.classList.contains("terminal-open") &&
       !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)
     ) {
       event.preventDefault();

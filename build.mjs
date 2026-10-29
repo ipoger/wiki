@@ -72,7 +72,6 @@ for (const file of files) {
   const title = data.title || firstHeading(content) || sourceRel;
   const description = data.description || firstParagraph(content) || site.description;
   const url = outDir ? `${outDir}/` : '';
-  const scripts = Array.isArray(data.scripts) ? data.scripts.map(String) : [];
   const html = renderMarkdown(content, { sourceRel, outDir });
 
   const outFile = path.join(DIST, outDir, 'index.html');
@@ -81,7 +80,7 @@ for (const file of files) {
     outFile,
     renderPage({
       site,
-      page: { title, description, url, outDir, scripts },
+      page: { title, description, url, outDir },
       html,
     }),
   );

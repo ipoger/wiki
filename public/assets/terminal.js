@@ -1,11 +1,17 @@
 (() => {
-  const term = document.getElementById("terminal");
-  if (!term) return;
+  const modal = document.getElementById("terminal-modal");
+  if (!modal) return;
 
   const out = document.getElementById("terminal-output");
   const input = document.getElementById("terminal-input");
   const promptEl = document.getElementById("terminal-prompt");
   const root = document.documentElement.dataset.root || "./";
+
+  let lastFocus = null;
+  let fsLoaded = false;
+  let fsLoading = false;
+  let started = false;
+  let closeTimer = null;
 
   const COMMANDS = [
     "cat",
@@ -520,37 +526,101 @@
     }
   });
 
-  term.addEventListener("click", (event) => {
-    if (event.target.closest("a")) return;
-    if (window.getSelection().toString()) return;
-    input.focus();
+  function loadFs() {
+    fsLoading = true;
+    fetch(`${root}terminal-fs.json`)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        fs = buildFs(data.pages || []);
+        fsLoaded = true;
+        fsLoading = false;
+        input.disabled = false;
+        updatePrompt();
+        if (!modal.hidden) input.focus({ preventScroll: true });
+      })
+      .catch((err) => {
+        fsLoading = false;
+        error(`终端文件系统加载失败：${err.message}`);
+        error("重新打开终端可以重试。");
+      });
+  }
+
+  function openTerminal() {
+    if (!modal.hidden) return;
+    clearTimeout(closeTimer);
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    document.body.classList.add("terminal-open");
+
+    if (!started) {
+      started = true;
+      print(
+        '<span class="t-brand">May\'s Wiki terminal</span> <span class="t-dim">v0.2</span>',
+      );
+      print(
+        '<span class="t-dim">输入 </span><span class="t-cmd-text">help</span><span class="t-dim"> 查看命令，</span><span class="t-cmd-text">ls</span><span class="t-dim"> 浏览目录。</span>',
+      );
+      blank();
+    }
+
+    updatePrompt();
+    requestAnimationFrame(() => {
+      modal.classList.add("is-open");
+      if (!input.disabled) input.focus({ preventScroll: true });
+      out.scrollTop = out.scrollHeight;
+    });
+
+    if (!fsLoaded && !fsLoading) loadFs();
+  }
+
+  function closeTerminal() {
+    if (modal.hidden) return;
+    modal.classList.remove("is-open");
+    document.body.classList.remove("terminal-open");
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => {
+      modal.hidden = true;
+    }, 150);
+    if (lastFocus && typeof lastFocus.focus === "function") {
+      lastFocus.focus({ preventScroll: true });
+    }
+  }
+
+  document.querySelectorAll("[data-terminal-open]").forEach((button) => {
+    button.addEventListener("click", openTerminal);
   });
 
-  input.disabled = true;
-  print(
-    '<span class="t-brand">May\'s Wiki terminal</span> <span class="t-dim">v0.1</span>',
-  );
-  print(
-    '<span class="t-dim">输入 </span><span class="t-cmd-text">help</span><span class="t-dim"> 查看命令，</span><span class="t-cmd-text">ls</span><span class="t-dim"> 浏览目录。</span>',
-  );
-  blank();
+  modal.querySelectorAll("[data-terminal-close]").forEach((element) => {
+    element.addEventListener("click", closeTerminal);
+  });
 
-  fetch(`${root}terminal-fs.json`)
-    .then((response) => {
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return response.json();
-    })
-    .then((data) => {
-      fs = buildFs(data.pages || []);
-      input.disabled = false;
-      updatePrompt();
-      if (window.matchMedia("(min-width: 820px)").matches) {
-        input.focus({ preventScroll: true });
-      }
-    })
-    .catch((err) => {
-      error(`终端文件系统加载失败：${err.message}`);
-      input.disabled = false;
-      updatePrompt();
-    });
+  modal.addEventListener("click", (event) => {
+    if (event.target.closest("[data-terminal-close]")) return;
+    if (event.target.closest("a")) return;
+    if (window.getSelection().toString()) return;
+    if (!input.disabled) input.focus();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (
+      event.ctrlKey &&
+      !event.repeat &&
+      (event.code === "Backquote" || event.key === "`")
+    ) {
+      event.preventDefault();
+      if (modal.hidden) openTerminal();
+      else closeTerminal();
+      return;
+    }
+
+    if (event.key === "Escape" && !modal.hidden) {
+      event.preventDefault();
+      closeTerminal();
+    }
+  });
+
+  updatePrompt();
 })();

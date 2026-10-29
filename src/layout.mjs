@@ -59,6 +59,11 @@ export function renderPage({ site, page, html }) {
     <nav class="site-nav" aria-label="主导航">
       <ul>${nav}<li class="nav-search"><a class="nav-link" href="${search}">搜索</a></li></ul>
     </nav>
+    <button class="terminal-trigger" type="button" data-terminal-open aria-label="打开 Wiki 终端" title="Wiki 终端（Ctrl + \`）">
+      <span class="terminal-trigger-icon" aria-hidden="true">&gt;_</span>
+      <span class="terminal-trigger-label">terminal</span>
+      <kbd class="terminal-trigger-key">Ctrl \`</kbd>
+    </button>
   </div>
 </header>
 <main class="container" id="content">
@@ -73,14 +78,37 @@ ${html}
       · <a href="${escapeHtml(site.license.url)}">${escapeHtml(site.license.name)}</a>
       · <a href="${escapeHtml(site.github)}">GitHub</a>
       · 由 Markdown 生成
+      · <button class="footer-terminal" type="button" data-terminal-open>终端 <kbd>Ctrl \`</kbd></button>
     </p>
   </div>
 </footer>
+
+<div class="terminal-modal" id="terminal-modal" hidden>
+  <div class="terminal-backdrop" data-terminal-close></div>
+  <section class="terminal-dialog" role="dialog" aria-modal="true" aria-labelledby="terminal-title">
+    <header class="terminal-bar">
+      <span class="terminal-mark" aria-hidden="true">&gt;_</span>
+      <h2 class="terminal-title" id="terminal-title">Wiki terminal</h2>
+      <span class="terminal-hint">Ctrl + \` 切换</span>
+      <button class="terminal-close" type="button" data-terminal-close aria-label="关闭终端">Esc</button>
+    </header>
+    <div class="terminal-body">
+      <div class="terminal-output" id="terminal-output" role="log" aria-live="polite"></div>
+      <div class="terminal-line">
+        <span class="terminal-prompt" id="terminal-prompt">guest@wiki:~$</span>
+        <input id="terminal-input" class="terminal-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" aria-label="终端命令" disabled>
+      </div>
+    </div>
+    <footer class="terminal-foot">
+      <span><kbd>Tab</kbd> 补全 · <kbd>↑</kbd><kbd>↓</kbd> 历史</span>
+      <span><kbd>Esc</kbd> 关闭</span>
+    </footer>
+  </section>
+</div>
+
 <script src="${root}assets/tasks.js" defer></script>
 <script src="${root}assets/app.js" defer></script>
-${(page.scripts || [])
-  .map((script) => `<script src="${root}assets/${escapeHtml(script)}" defer></script>`)
-  .join('\n')}
+<script src="${root}assets/terminal.js" defer></script>
 </body>
 </html>
 `;

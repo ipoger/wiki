@@ -13,14 +13,14 @@
 - **干净 URL**：`notes/foo.md` → `notes/foo/`，且部署在子路径下链接也不会坏。
 - **够用的排版**：KaTeX 公式、highlight.js 代码高亮、表格、引用块。
 - **站内搜索**：构建时生成 JSON 索引，浏览器里匹配，无需服务端。
-- **站内终端**：`/terminal/` 提供一个虚拟 shell，用 `ls` / `cd` / `cat` / `find` 浏览全部页面。
+- **站内终端**：按 `Ctrl + \`` 弹出浅色终端，用 `ls` / `cd` / `cat` / `find` 浏览全部页面。
 - **可勾选清单**：学习路线里的任务可以直接打勾，状态存在浏览器本地。
 - **学习路线**：内置 17 周 AI Infra 计划，配套计算脚本可单独下载。
 - **自动发布**：push 到 `main` 后由 GitHub Actions 部署到 Pages。
 
 ## 站内终端
 
-打开 <https://ipoger.github.io/wiki/terminal/>，或者在导航里点「终端」。
+在任意页面按 **`Ctrl + \``**，或点右上角的 `>_` 按钮 / 页脚「终端」，会弹出一个浅色终端。`Esc` 或点击遮罩关闭。
 
 ```text
 $ help
@@ -31,7 +31,7 @@ $ find 上下文
 $ open roadmap
 ```
 
-支持 `Tab` 补全路径、`↑` / `↓` 翻历史、`Ctrl+L` 清屏。文件系统在构建时由 `content/` 生成，新增页面会自动出现在终端里。
+支持 `Tab` 补全路径、`↑` / `↓` 翻历史、`Ctrl+L` 清屏。文件系统在构建时由 `content/` 生成，新增页面会自动出现在终端里；历史记录保存在浏览器本地。
 
 ![终端](docs/terminal.png)
 
@@ -54,7 +54,6 @@ npm run dev       # 构建并启动 http://localhost:4173
 │   ├── notes/             # 笔记
 │   ├── projects/          # 项目（含 AI Infra 学习路线）
 │   ├── reading/           # 阅读清单
-│   ├── terminal/          # 虚拟终端
 │   └── search/            # 搜索页
 ├── src/
 │   ├── layout.mjs         # HTML 模板
