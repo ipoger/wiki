@@ -131,7 +131,7 @@ function init() {
 
   function stripAnsi(text) {
     return String(text)
-      .replace(/\x1b\][^\x07]*(?:\x07|\x1b\\)/g, '')
+      .replace(/\x1b\][^\x07]*?(?:\x07|\x1b\\)/g, '')
       .replace(/\x1b\[[0-9;?]*[ -/]*[@-~]/g, '');
   }
 
@@ -500,6 +500,123 @@ function init() {
     redraw();
   }
 
+  // ---- dictionary ------------------------------------------------------
+
+  const DICT_CACHE = 'wiki-dict:v2:';
+
+  function cleanExternal(value) {
+    return String(value)
+      .replace(/\x1b/g, '')
+      .replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, '')
+      .trim();
+  }
+
+  async function fetchJson(url) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  function dictLinks(query) {
+    const encoded = encodeURIComponent(query);
+    const links = [
+      oscLink(`https://dict.youdao.com/result?word=${encoded}&lang=en`, '有道'),
+    ];
+    if (!query.includes(' ')) {
+      links.push(
+        oscLink(
+          `https://dictionary.cambridge.org/dictionary/english/${encoded}`,
+          'Cambridge',
+        ),
+      );
+    }
+    return `${COLOR.muted}更多：${links.join(' · ')}${RESET}`;
+  }
+
+  async function cmdDict(args, stdin) {
+    let query = args.join(' ').trim();
+    if (!query) query = stripAnsi(stdin).trim();
+    query = cleanExternal(query).slice(0, 500);
+    if (!query) {
+      return `${COLOR.error}dict: 给一个单词或短语，或接在管道后面${RESET}\n`;
+    }
+
+    const cacheKey = `${DICT_CACHE}${query.toLowerCase()}`;
+    try {
+      const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+      if (cached && Date.now() - cached.ts < 7 * 24 * 3600 * 1000) {
+        return cached.text;
+      }
+    } catch {
+      /* ignore cache */
+    }
+
+    const lines = [`${BOLD}${COLOR.heading}${query}${RESET}`];
+    const isPhrase = query.includes(' ') || query.length > 24;
+    let hasDefinition = false;
+
+    if (!isPhrase) {
+      try {
+        const entries = await fetchJson(
+          `https://api.datamuse.com/words?sp=${encodeURIComponent(
+            query,
+          )}&md=d&max=1`,
+        );
+        const entry = Array.isArray(entries) ? entries[0] : null;
+        if (entry?.defs?.length) {
+          lines.push('');
+          entry.defs.slice(0, 3).forEach((item) => {
+            const [part, ...rest] = String(item).split('\t');
+            const definition = cleanExternal(rest.join(' '));
+            if (definition) {
+              lines.push(`  ${COLOR.muted}${part}${RESET}  ${definition}`);
+              hasDefinition = true;
+            }
+          });
+        }
+      } catch {
+        /* fall through to translation */
+      }
+    }
+
+    let translation = '';
+    try {
+      const data = await fetchJson(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+          query,
+        )}&langpair=en%7Czh-CN`,
+      );
+      translation = cleanExternal(data?.responseData?.translatedText || '');
+    } catch {
+      /* ignore */
+    }
+
+    if (translation) {
+      lines.push('');
+      lines.push(`${COLOR.path}中文${RESET}  ${translation}`);
+    }
+    if (!hasDefinition && !translation) {
+      lines.push('');
+      lines.push(`${COLOR.error}联网查询失败，可以直接打开下面的词典。${RESET}`);
+    }
+    lines.push('');
+    lines.push(dictLinks(query));
+
+    const text = `${lines.join('\n')}\n`;
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), text }));
+    } catch {
+      /* ignore quota */
+    }
+    return text;
+  }
+
   // ---- pager -----------------------------------------------------------
 
   function startPager(text, title) {
@@ -535,7 +652,7 @@ function init() {
       if (text[index] === '\x1b') {
         const rest = text.slice(index);
         const match = rest.match(
-          /^\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07]*(?:\x07|\x1b\\))/,
+          /^\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07]*?(?:\x07|\x1b\\))/,
         );
         if (match) {
           const sequence = match[0];
@@ -578,7 +695,7 @@ function init() {
       if (text[index] === '\x1b') {
         const rest = text.slice(index);
         const match = rest.match(
-          /^\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07]*(?:\x07|\x1b\\))/,
+          /^\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07]*?(?:\x07|\x1b\\))/,
         );
         if (match) {
           out += match[0];
@@ -681,6 +798,7 @@ function init() {
   const COMMANDS = [
     'cat',
     'cd',
+    'dict',
     'clear',
     'echo',
     'exit',
@@ -884,6 +1002,7 @@ function init() {
       ['ls [path]', '列出目录'],
       ['cd <path>', '切换目录'],
       ['cat <page>', '查看页面（Markdown 渲染为终端样式）'],
+      ['dict <word>', '查英文单词 / 翻译短语（联网）'],
       ['less <page>', '分页查看页面或管道输入'],
       ['tree [path]', '显示目录树'],
       ['find <text>', '搜索标题和正文'],
@@ -917,6 +1036,8 @@ function init() {
   async function run(argv, stdin, last) {
     const [name, ...args] = argv;
     switch (name) {
+      case 'dict':
+        return { output: await cmdDict(args, stdin) };
       case 'less':
       case 'more': {
         let text = stdin;
