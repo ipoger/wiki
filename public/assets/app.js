@@ -1,5 +1,17 @@
 (() => {
   const input = document.querySelector(".token input");
+  // Keep the wiki open when a citation or external link leaves the site.
+  document.querySelectorAll(".wiki a[href]").forEach((link) => {
+    if (!/^https?:/i.test(link.href)) return;
+    try {
+      if (new URL(link.href).origin !== location.origin) {
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+      }
+    } catch {
+      /* ignore malformed links */
+    }
+  });
 
   document.addEventListener("keydown", (event) => {
     if (

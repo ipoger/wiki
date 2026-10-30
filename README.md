@@ -33,25 +33,17 @@ $ cd projects/ai-infra-study
 $ cat week-by-week
 $ cat notes/context-engineering | grep 上下文
 $ less notes/os-three-abstractions
-$ dict serendipity
-$ echo "The Bitter Lesson" | dict
 $ find 上下文
 $ open roadmap
 ```
 
 `cat` 会把 Markdown 渲染成终端样式；`less` / `more` 支持分页（↑↓、Space、b、g/G、q）；`grep` / `head` / `tail` / `wc` 可以接在管道后面。
 
-### 看英文资料时
+### 读英文页面
 
-用 `dict` 查词或翻译短语：
+站外链接会在新标签打开，wiki 不会丢。生词交给浏览器或扩展处理：Chrome / Edge 可以右键“翻译成中文”，需要对照原文时用沉浸式翻译，划词查词可以用沙拉查词或系统自带的词典。
 
-```text
-dict serendipity
-dict take it for granted
-echo "The Bitter Lesson" | dict
-```
-
-它同时查英文释义和中文翻译，结果在本地缓存 7 天；网络不可用时会给有道和 Cambridge 的链接。支持 `Tab` 补全路径、`↑` / `↓` 翻历史、`Ctrl+L` 清屏。文件系统在构建时由 `content/` 生成，新增页面会自动出现在终端里；历史记录保存在浏览器本地。
+终端支持 `Tab` 补全路径、`↑` / `↓` 翻历史、`Ctrl+L` 清屏。文件系统在构建时由 `content/` 生成，新增页面会自动出现在终端里；历史记录保存在浏览器本地。
 
 ![终端](docs/terminal.png)
 
