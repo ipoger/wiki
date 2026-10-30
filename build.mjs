@@ -5,6 +5,7 @@ import matter from 'gray-matter';
 import { renderMarkdown, htmlToText, htmlToPlain } from './src/markdown.mjs';
 import { renderPage } from './src/layout.mjs';
 import { outDirForSource, relUrl } from './src/url.mjs';
+import { build as esbuild } from 'esbuild';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const CONTENT = path.join(ROOT, 'content');
@@ -108,6 +109,7 @@ for (const file of files) {
     title,
     url,
     text: htmlToPlain(html).slice(0, 12000),
+    markdown: content.slice(0, 30000),
   });
   if (sourceRel !== 'search/index.md') {
     const section = url.split('/')[0] || '首页';
@@ -182,6 +184,19 @@ if (recent.length || notes.length) {
 
 // Static assets shipped as-is.
 if (fs.existsSync(PUBLIC)) copyDir(PUBLIC, DIST);
+
+// Bundle the xterm.js terminal. Output: dist/assets/terminal.js + terminal.css.
+await esbuild({
+  entryPoints: [path.join(ROOT, 'src', 'terminal', 'main.js')],
+  bundle: true,
+  outdir: path.join(DIST, 'assets'),
+  entryNames: 'terminal',
+  format: 'iife',
+  target: ['es2020'],
+  minify: true,
+  loader: { '.css': 'css' },
+  logLevel: 'silent',
+});
 
 // KaTeX and highlight.js styles, served locally so the site works offline.
 const vendor = path.join(DIST, 'assets', 'vendor');

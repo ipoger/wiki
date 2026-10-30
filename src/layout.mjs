@@ -52,6 +52,7 @@ export function renderPage({ site, page, html, assetVersion }) {
 <link rel="stylesheet" href="${root}assets/vendor/katex.min.css">
 <link rel="stylesheet" href="${root}assets/vendor/github.css" media="(prefers-color-scheme: light)">
 <link rel="stylesheet" href="${root}assets/vendor/github-dark.css" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="${root}assets/terminal.css?v=${assetVersion}">
 <link rel="stylesheet" href="${root}assets/style.css?v=${assetVersion}">
 </head>
 <body${bodyClass ? ` class="${escapeHtml(bodyClass)}"` : ''}>
@@ -101,14 +102,10 @@ ${editUrl ? `    <p class="page-edit"><a href="${escapeHtml(editUrl)}">编辑此
       <button class="terminal-close" type="button" data-terminal-close aria-label="关闭终端">Esc</button>
     </header>
     <div class="terminal-body">
-      <div class="terminal-output" id="terminal-output" role="log" aria-live="polite"></div>
-      <div class="terminal-line">
-        <span class="terminal-prompt" id="terminal-prompt">guest@wiki:~$</span>
-        <input id="terminal-input" class="terminal-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" aria-label="终端命令" placeholder="help / ls / find …">
-      </div>
+      <div class="terminal-xterm" id="xterm-host"></div>
     </div>
     <footer class="terminal-foot">
-      <span><kbd>Tab</kbd> 补全 · <kbd>↑</kbd><kbd>↓</kbd> 历史</span>
+      <span><kbd>Tab</kbd> 补全 · <kbd>↑</kbd><kbd>↓</kbd> 历史 · <kbd>Ctrl</kbd>+<kbd>L</kbd> 清屏</span>
       <span><kbd>Esc</kbd> 关闭</span>
     </footer>
   </section>

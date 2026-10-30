@@ -24,16 +24,19 @@
 
 在任意页面按 **`Ctrl + \``**，或点右上角的 `>_` 按钮 / 页脚「终端」，会弹出一个浅色终端。`Esc` 或点击遮罩关闭。
 
+终端用 **xterm.js** 渲染（仿 jyy 的终端），支持 ANSI 颜色、Markdown 渲染和管道：
+
 ```text
 $ help
 $ ls
 $ cd projects/ai-infra-study
 $ cat week-by-week
+$ cat notes/context-engineering | grep 上下文
 $ find 上下文
 $ open roadmap
 ```
 
-支持 `Tab` 补全路径、`↑` / `↓` 翻历史、`Ctrl+L` 清屏。文件系统在构建时由 `content/` 生成，新增页面会自动出现在终端里；历史记录保存在浏览器本地。
+`cat` 会把 Markdown 渲染成终端样式；`grep` / `head` / `tail` / `wc` 可以接在管道后面。支持 `Tab` 补全路径、`↑` / `↓` 翻历史、`Ctrl+L` 清屏。文件系统在构建时由 `content/` 生成，新增页面会自动出现在终端里；历史记录保存在浏览器本地。
 
 ![终端](docs/terminal.png)
 
@@ -64,8 +67,9 @@ npm run build     # 只构建到 dist/
 ├── src/
 │   ├── layout.mjs         # HTML 模板
 │   ├── markdown.mjs       # Markdown → HTML
+│   ├── terminal/main.js   # xterm.js 终端（esbuild 打包）
 │   └── url.mjs            # 链接解析
-├── public/                # 静态资源、下载包、终端脚本
+├── public/                # 静态资源、下载包
 └── .github/workflows/     # GitHub Pages 部署
 ```
 
