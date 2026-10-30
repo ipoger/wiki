@@ -785,90 +785,54 @@ body.terminal-open { overflow: hidden; }
 
 /* ---------- reading citations ---------- */
 
-.reading-page .wiki {
-  counter-reset: cite;
-}
+.reading-page .wiki { counter-reset: cite; }
 
 .reading-page .wiki ol {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 1.4em 0 2.2em;
+  margin: 1.3em 0 2.2em;
   padding: 0;
   list-style: none;
 }
 
 .reading-page .wiki ol > li {
   counter-increment: cite;
-  position: relative;
-  padding: 13px 40px 13px 52px;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--link) 2.5%, transparent);
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease;
+  padding: 0 0 16px 36px;
+  border: 0;
+  background: none;
 }
-.reading-page .wiki ol > li:hover {
-  border-color: color-mix(in srgb, var(--link) 32%, var(--border));
-  background: color-mix(in srgb, var(--link) 5%, transparent);
+.reading-page .wiki ol > li + li {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
-.reading-page .wiki ol > li:focus-within {
-  outline: 2px solid color-mix(in srgb, var(--link) 55%, transparent);
-  outline-offset: 2px;
-}
+.reading-page .wiki ol > li:last-child { padding-bottom: 0; }
 
-.reading-page .wiki ol > li::before {
-  content: counter(cite, decimal-leading-zero);
-  position: absolute;
-  left: 16px;
-  top: 15px;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-}
+.reading-page .wiki ol > li > p { margin: 0; }
 
-.reading-page .wiki ol > li::after {
-  content: "↗";
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  z-index: 1;
-  transform: translateY(-50%);
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 15px;
-  pointer-events: none;
-  transition: color 0.15s ease, transform 0.15s ease;
-}
-.reading-page .wiki ol > li:hover::after {
-  color: var(--link);
-  transform: translate(1px, -1px);
-}
-
-.reading-page .wiki ol > li > p {
-  margin: 0;
-}
 .reading-page .wiki ol > li > p:first-child {
-  color: var(--heading);
   font-family: var(--font-heading);
   font-size: 16px;
   font-weight: 700;
   line-height: 1.45;
 }
+.reading-page .wiki ol > li > p:first-child::before {
+  content: counter(cite, decimal-leading-zero);
+  display: inline-block;
+  width: 26px;
+  margin-left: -36px;
+  margin-right: 10px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  vertical-align: 2px;
+}
 .reading-page .wiki ol > li > p:first-child a {
-  color: var(--heading);
-  text-decoration: none;
-}
-.reading-page .wiki ol > li > p:first-child a::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-.reading-page .wiki ol > li > p:first-child a:hover,
-.reading-page .wiki ol > li:hover > p:first-child a {
   color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
+.reading-page .wiki ol > li > p:first-child a:hover { color: var(--link-hover); }
+
 .reading-page .wiki ol > li > p:nth-child(2) {
   margin-top: 3px;
   color: var(--muted);
@@ -877,13 +841,10 @@ body.terminal-open { overflow: hidden; }
   line-height: 1.6;
 }
 .reading-page .wiki ol > li > p:nth-child(2) strong {
-  padding: 0 5px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
+  color: var(--muted);
   font-weight: 400;
-  font-size: 9.5px;
-  letter-spacing: 0.02em;
 }
+
 .reading-page .wiki ol > li > p:nth-child(3) {
   margin-top: 5px;
   font-size: 14px;
@@ -891,11 +852,16 @@ body.terminal-open { overflow: hidden; }
 }
 
 @media (max-width: 640px) {
-  .reading-page .wiki ol { gap: 8px; margin: 1.2em 0 1.8em; }
-  .reading-page .wiki ol > li { padding: 12px 34px 12px 44px; }
-  .reading-page .wiki ol > li::before { left: 13px; top: 14px; font-size: 10px; }
-  .reading-page .wiki ol > li::after { right: 12px; }
+  .reading-page .wiki ol { margin: 1.1em 0 1.8em; }
+  .reading-page .wiki ol > li { padding-left: 30px; padding-bottom: 13px; }
+  .reading-page .wiki ol > li + li { padding-top: 13px; }
   .reading-page .wiki ol > li > p:first-child { font-size: 15px; }
+  .reading-page .wiki ol > li > p:first-child::before {
+    width: 22px;
+    margin-left: -30px;
+    margin-right: 8px;
+    font-size: 10px;
+  }
   .reading-page .wiki ol > li > p:nth-child(2) { font-size: 10px; }
   .reading-page .wiki ol > li > p:nth-child(3) { font-size: 13.5px; }
 }
