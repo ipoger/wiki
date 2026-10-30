@@ -285,6 +285,7 @@ function init() {
   let historyIndex = 0;
   let draft = '';
   let promptWidth = 0;
+  let pager = null;
 
   try {
     const stored = JSON.parse(localStorage.getItem('wiki-term-history') || '[]');
@@ -342,7 +343,7 @@ function init() {
           closeTerminal();
           return;
         }
-        if (result === 'navigate') return;
+        if (result === 'navigate' || result === 'pager') return;
         prompt();
       })
       .catch((error) => {
@@ -352,6 +353,10 @@ function init() {
   }
 
   function onData(data) {
+    if (pager) {
+      pagerKey(data);
+      return;
+    }
     switch (data) {
       case '\r':
       case '\n': {
@@ -493,6 +498,182 @@ function init() {
       buffer.slice(0, wordStart) + replacement + buffer.slice(cursor);
     cursor = wordStart + replacement.length;
     redraw();
+  }
+
+  // ---- pager -----------------------------------------------------------
+
+  function startPager(text, title) {
+    pager = {
+      title,
+      lines: String(text).replace(/\r\n/g, '\n').split('\n'),
+      offset: 0,
+    };
+    layoutPager();
+    write('\x1b[?1049h\x1b[?25l\x1b[2J\x1b[H');
+    renderPager();
+  }
+
+  function clipPlain(text, maxWidth) {
+    let out = '';
+    let width = 0;
+    for (const char of String(text)) {
+      const w = charWidth(char.codePointAt(0));
+      if (width + w > maxWidth) break;
+      out += char;
+      width += w;
+    }
+    return out + ' '.repeat(Math.max(0, maxWidth - width));
+  }
+
+  function wrapAnsi(text, width) {
+    const rows = [];
+    let current = '';
+    let used = 0;
+    let active = '';
+    let index = 0;
+    while (index < text.length) {
+      if (text[index] === '\x1b') {
+        const rest = text.slice(index);
+        const match = rest.match(
+          /^\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07]*(?:\x07|\x1b\\))/,
+        );
+        if (match) {
+          const sequence = match[0];
+          current += sequence;
+          if (/^\x1b\[[0-9;]*m$/.test(sequence)) {
+            if (sequence === '\x1b[0m' || sequence === '\x1b[m') active = '';
+            else active += sequence;
+          }
+          index += sequence.length;
+          continue;
+        }
+      }
+      const code = text.codePointAt(index);
+      const char = String.fromCodePoint(code);
+      const charWidthValue = charWidth(code);
+      if (used + charWidthValue > width) {
+        rows.push(`${current}\x1b]8;;\x1b\\\x1b[0m`);
+        current = active;
+        used = 0;
+      }
+      current += char;
+      used += charWidthValue;
+      index += char.length;
+    }
+    rows.push(`${current}\x1b]8;;\x1b\\\x1b[0m`);
+    return rows;
+  }
+
+  function layoutPager() {
+    if (!pager) return;
+    const cols = term.cols || 80;
+    pager.display = pager.lines.flatMap((line) => wrapAnsi(line, cols));
+  }
+
+  function clipAnsi(text, maxWidth) {
+    let out = '';
+    let width = 0;
+    let index = 0;
+    while (index < text.length) {
+      if (text[index] === '\x1b') {
+        const rest = text.slice(index);
+        const match = rest.match(
+          /^\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07]*(?:\x07|\x1b\\))/,
+        );
+        if (match) {
+          out += match[0];
+          index += match[0].length;
+          continue;
+        }
+      }
+      const code = text.codePointAt(index);
+      const char = String.fromCodePoint(code);
+      const w = charWidth(code);
+      if (width + w > maxWidth) break;
+      out += char;
+      width += w;
+      index += char.length;
+    }
+    return out + '\x1b]8;;\x1b\\\x1b[0m';
+  }
+
+  function renderPager() {
+    if (!pager) return;
+    layoutPager();
+    const rows = term.rows || 24;
+    const cols = term.cols || 80;
+    const pageHeight = Math.max(1, rows - 1);
+    const maxOffset = Math.max(0, pager.display.length - 1);
+    pager.offset = Math.max(0, Math.min(pager.offset, maxOffset));
+
+    let out = '\x1b[2J';
+    for (let row = 1; row <= pageHeight; row += 1) {
+      const line = pager.display[pager.offset + row - 1] || '';
+      out += `\x1b[${row};1H${clipAnsi(line, cols)}`;
+    }
+    const last = Math.min(pager.display.length, pager.offset + pageHeight);
+    const status = ` ${pager.title}  ${pager.offset + 1}-${last}/${pager.display.length}  q 退出 · ↓/Space 下一页 · ↑/b 上一页 · g/G 首尾 `;
+    out += `\x1b[${rows};1H\x1b[7m${clipPlain(status, cols)}\x1b[0m`;
+    term.write(out);
+  }
+
+  function pagerKey(data) {
+    if (!pager) return;
+    const pageHeight = Math.max(1, (term.rows || 24) - 1);
+    switch (data) {
+      case 'q':
+      case 'Q':
+      case '\x1b':
+      case '\x03':
+        exitPager();
+        return;
+      case 'j':
+      case '\x1b[B':
+      case '\x1bOB':
+        pager.offset += 1;
+        renderPager();
+        return;
+      case 'k':
+      case '\x1b[A':
+      case '\x1bOA':
+        pager.offset -= 1;
+        renderPager();
+        return;
+      case ' ':
+      case '\x1b[6~':
+      case '\x04':
+        pager.offset += pageHeight;
+        renderPager();
+        return;
+      case 'b':
+      case '\x1b[5~':
+      case '\x15':
+        pager.offset -= pageHeight;
+        renderPager();
+        return;
+      case 'g':
+      case '\x1b[H':
+      case '\x1bOH':
+        pager.offset = 0;
+        renderPager();
+        return;
+      case 'G':
+      case '\x1b[F':
+      case '\x1bOF':
+        pager.offset = Math.max(0, (pager.display?.length || pager.lines.length) - pageHeight);
+        renderPager();
+        return;
+      default:
+        return;
+    }
+  }
+
+  function exitPager() {
+    if (!pager) return;
+    pager = null;
+    write('\x1b[?1049l\x1b[?25h');
+    resetLine();
+    prompt();
   }
 
   // ---- commands --------------------------------------------------------
@@ -703,6 +884,7 @@ function init() {
       ['ls [path]', '列出目录'],
       ['cd <path>', '切换目录'],
       ['cat <page>', '查看页面（Markdown 渲染为终端样式）'],
+      ['less <page>', '分页查看页面或管道输入'],
       ['tree [path]', '显示目录树'],
       ['find <text>', '搜索标题和正文'],
       ['grep <text>', '过滤管道输入'],
@@ -735,6 +917,25 @@ function init() {
   async function run(argv, stdin, last) {
     const [name, ...args] = argv;
     switch (name) {
+      case 'less':
+      case 'more': {
+        let text = stdin;
+        let title = 'stdin';
+        if (!text && args[0]) {
+          const page = pageFor(args[0]);
+          if (!page) {
+            return { output: `${COLOR.error}less: no such page${RESET}\n` };
+          }
+          text = renderMarkdown(page.markdown, page, term.cols);
+          title = page.title;
+        }
+        if (!text) {
+          return { output: `${COLOR.error}less: empty input${RESET}\n` };
+        }
+        if (!last) return { output: text };
+        startPager(text, title);
+        return { pager: true };
+      }
       case 'ls':
         return { output: cmdLs(args) };
       case 'cd':
@@ -804,6 +1005,7 @@ function init() {
       const result = await run(argv, stdin, isLast);
       if (result.navigate) return 'navigate';
       if (result.close) return 'close';
+      if (result.pager) return 'pager';
       if (result.clear) {
         term.write('\x1b[2J\x1b[3J\x1b[H');
         return 'ok';
@@ -877,6 +1079,7 @@ function init() {
     term.onData(onData);
     term.attachCustomKeyEventHandler((event) => {
       if (event.type === 'keydown' && event.key === 'Escape') {
+        if (pager) return true;
         closeTerminal();
         return false;
       }
@@ -894,6 +1097,7 @@ function init() {
     } catch {
       /* not visible yet */
     }
+    if (pager) renderPager();
   }
 
   function openTerminal() {
@@ -928,6 +1132,10 @@ function init() {
 
   function closeTerminal() {
     if (modal.hidden) return;
+    if (pager) {
+      pager = null;
+      write('\x1b[?1049l\x1b[?25h');
+    }
     modal.classList.remove('is-open');
     document.body.classList.remove('terminal-open');
     term?.blur();
@@ -965,6 +1173,7 @@ function init() {
         return;
       }
       if (event.key === 'Escape' && !modal.hidden) {
+        if (pager) return;
         event.preventDefault();
         event.stopPropagation();
         closeTerminal();

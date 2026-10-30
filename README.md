@@ -32,11 +32,12 @@ $ ls
 $ cd projects/ai-infra-study
 $ cat week-by-week
 $ cat notes/context-engineering | grep 上下文
+$ less notes/os-three-abstractions
 $ find 上下文
 $ open roadmap
 ```
 
-`cat` 会把 Markdown 渲染成终端样式；`grep` / `head` / `tail` / `wc` 可以接在管道后面。支持 `Tab` 补全路径、`↑` / `↓` 翻历史、`Ctrl+L` 清屏。文件系统在构建时由 `content/` 生成，新增页面会自动出现在终端里；历史记录保存在浏览器本地。
+`cat` 会把 Markdown 渲染成终端样式；`less` / `more` 支持分页（↑↓、Space、b、g/G、q）；`grep` / `head` / `tail` / `wc` 可以接在管道后面。支持 `Tab` 补全路径、`↑` / `↓` 翻历史、`Ctrl+L` 清屏。文件系统在构建时由 `content/` 生成，新增页面会自动出现在终端里；历史记录保存在浏览器本地。
 
 ![终端](docs/terminal.png)
 
