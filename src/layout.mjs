@@ -86,7 +86,7 @@ ${editUrl ? `    <p class="page-edit"><a href="${escapeHtml(editUrl)}">编辑此
       · <a href="${escapeHtml(site.license.url)}">${escapeHtml(site.license.name)}</a>
       · <a href="${escapeHtml(site.github)}">GitHub</a>
       · 由 Markdown 生成
-      · <button class="footer-terminal" type="button" data-terminal-open>终端 <kbd>Ctrl \`</kbd></button>
+      <span class="footer-terminal-wrap"> · <button class="footer-terminal" type="button" data-terminal-open>终端 <kbd>Ctrl \`</kbd></button></span>
     </p>
   </div>
 </footer>
