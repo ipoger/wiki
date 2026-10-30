@@ -8,11 +8,11 @@ description: May 的个人 Wiki：系统、工具与 AI 的笔记。
 写系统、工具与 AI。把值得重读的东西，整理成可以 diff 的页面。
 
 <section class="home-featured">
-  <p class="home-kicker">2026-10-24 · 笔记</p>
-  <h2><a href="notes/context-engineering/">上下文工程：Agent 的隐形架构</a></h2>
-  <p class="home-lede">模型能力之外，决定 Agent 表现的是每一步能看到什么。</p>
-  <p>同一个模型，套上不同的提示词、工具和上下文管理策略，完成率可以差出好几倍。上下文不是仓库，而是预算：把有限的 token 花在当下最需要的信息上。</p>
-  <p class="home-more"><a href="notes/context-engineering/">阅读全文 →</a></p>
+  <p class="home-kicker">一点想法</p>
+  <h2>上下文是一种预算</h2>
+  <p class="home-lede">决定 Agent 表现的，往往不是模型本身，而是每一步它能看到什么。</p>
+  <p>同一个模型，换一套工具和上下文管理方式，完成率可以差出好几倍。上下文不是仓库，而是预算：把有限的 token 花在当下最需要的信息上。</p>
+  <p>这也是我写这个 Wiki 的原因。把想清楚的东西写下来，下一次就不必从零开始回忆。</p>
 </section>
 
 ## 关于我
