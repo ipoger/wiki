@@ -7,8 +7,8 @@ const escapeHtml = (s) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
-export function renderPage({ site, page, html }) {
-  const { outDir, title, description, sourceRel } = page;
+export function renderPage({ site, page, html, assetVersion }) {
+  const { outDir, title, description, sourceRel, bodyClass } = page;
   const root = relUrl(outDir, '');
   const home = root;
   const search = relUrl(outDir, 'search/');
@@ -52,9 +52,9 @@ export function renderPage({ site, page, html }) {
 <link rel="stylesheet" href="${root}assets/vendor/katex.min.css">
 <link rel="stylesheet" href="${root}assets/vendor/github.css" media="(prefers-color-scheme: light)">
 <link rel="stylesheet" href="${root}assets/vendor/github-dark.css" media="(prefers-color-scheme: dark)">
-<link rel="stylesheet" href="${root}assets/style.css">
+<link rel="stylesheet" href="${root}assets/style.css?v=${assetVersion}">
 </head>
-<body>
+<body${bodyClass ? ` class="${escapeHtml(bodyClass)}"` : ''}>
 <a class="skip-link" href="#content">跳到正文</a>
 <header class="site-header">
   <div class="header-inner">
@@ -114,10 +114,10 @@ ${editUrl ? `    <p class="page-edit"><a href="${escapeHtml(editUrl)}">编辑此
   </section>
 </div>
 
-<script src="${root}terminal-fs.js" defer></script>
-<script src="${root}assets/tasks.js" defer></script>
-<script src="${root}assets/app.js" defer></script>
-<script src="${root}assets/terminal.js" defer></script>
+<script src="${root}terminal-fs.js?v=${assetVersion}" defer></script>
+<script src="${root}assets/tasks.js?v=${assetVersion}" defer></script>
+<script src="${root}assets/app.js?v=${assetVersion}" defer></script>
+<script src="${root}assets/terminal.js?v=${assetVersion}" defer></script>
 </body>
 </html>
 `;

@@ -14,6 +14,7 @@ const MODULES = path.join(ROOT, 'node_modules');
 
 const site = JSON.parse(fs.readFileSync(path.join(ROOT, 'site.json'), 'utf8'));
 const quiet = process.argv.includes('--quiet');
+const assetVersion = Date.now().toString(36);
 
 const escapeHtml = (value) =>
   String(value)
@@ -95,8 +96,9 @@ for (const file of files) {
     outFile,
     renderPage({
       site,
-      page: { title, description, url, outDir, sourceRel },
+      page: { title, description, url, outDir, sourceRel, bodyClass: data.bodyClass },
       html,
+      assetVersion,
     }),
   );
 
