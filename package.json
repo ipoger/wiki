@@ -7,7 +7,6 @@
   "scripts": {
     "build": "node build.mjs",
     "dev": "node scripts/dev.mjs",
-    "new": "node scripts/new.mjs",
     "write": "node scripts/write.mjs",
     "w": "node scripts/write.mjs",
     "serve": "python3 -m http.server 4173 --directory dist"

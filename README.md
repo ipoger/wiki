@@ -52,7 +52,6 @@ npm run build     # 只构建到 dist/
 ├── build.mjs              # 构建入口
 ├── site.json              # 站点名、导航、链接
 ├── scripts/
-│   ├── new.mjs            # 只新建页面
 │   ├── write.mjs          # 新建 → 编辑 → 构建 → 提交 → 推送
 │   ├── lib.mjs            # 共用的提示与模板
 │   └── dev.mjs            # 本地预览 + 文件监听
@@ -72,38 +71,42 @@ npm run build     # 只构建到 dist/
 
 ## 怎么写
 
-### 一条命令写完并发布（推荐）
+写作只有三类：**笔记**（默认）、**项目**、**阅读**。首页是固定的个人页，不进入笔记索引。
+
+### 一条命令
 
 ```bash
 npm run write
 ```
 
-回答四个问题（位置、标题、URL 片段、摘要），编辑器会打开新文件。**保存并退出编辑器后**，它会自动：
+只问一个标题。编辑器打开后写正文，**保存并退出**，它会自动：
 
-1. 构建站点，构建失败就停下，不提交；
-2. 只把这一篇 Markdown 加入提交；
-3. 提交为 `notes: 标题`（或 `projects:` / `reading:`）；
+1. 构建站点，失败就停下，不提交；
+2. 只提交这一篇 Markdown；
+3. 提交为 `notes: 标题`；
 4. push 到 GitHub，由 Actions 部署。
 
-编辑器取 `$VISUAL` / `$EDITOR`；没设置时优先 `code --wait`，其次 `nano`，最后 `vi`。
+URL 从标题自动生成，日期自动写入，摘要由正文第一段自动提取，不需要提前填任何 front matter。
 
 常用变体：
 
 ```bash
-npm run write -- notes/why-static-wiki   # 改已有页面，退出后同样自动发布
-npm run write -- --dry-run               # 走完流程并构建，但不提交
+npm run write -- "标题"                  # 连标题也不问
+npm run write -- --project "标题"        # 放到 projects/
+npm run write -- --reading "标题"        # 放到 reading/
+npm run write -- --slug=my-url "标题"    # 指定 URL
+npm run write -- notes/why-static-wiki   # 改已有页面
+npm run write -- --dry-run               # 只构建，不提交
 npm run write -- --no-push               # 提交，但不 push
 ```
 
-如果打开编辑器后什么都没写就退出，草稿会被删除，不会产生空提交。`npm run w` 是 `npm run write` 的别名。
+编辑器取 `$VISUAL` / `$EDITOR`；没设置时优先 `code --wait`，其次 `nano`，最后 `vi`。什么都没写就退出，草稿会自动删除。`npm run w` 是 `npm run write` 的别名。
 
 ### 其他方式
 
-**1. 在网页上改。** 每页底部都有「编辑此页」，直接跳到 GitHub 的网页编辑器；改完 commit，一分钟内自动上线。适合改错别字和补链接。
+**1. 在网页上改。** 每页底部都有「编辑此页」，直接跳到 GitHub 的网页编辑器；改完 commit，一分钟内自动上线。
 
-**2. 只新建，不发布。** 运行 `npm run new`，生成带 front matter 和日期的文件，之后自己用编辑器写、用 `npm run dev` 预览。
-
-**3. 用你习惯的编辑器。** 把 `content/` 当作普通文件夹或 Obsidian vault 打开，`npm run dev` 保持预览，保存即重建。没有数据库、没有后台，改的就是最终要发布的 Markdown。
+**2. 用你习惯的编辑器。** 把 `content/` 当作普通文件夹或 Obsidian vault 打开，`npm run dev` 保持预览，保存即重建。
 
 ### 手动新建也可以
 

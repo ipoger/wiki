@@ -6,9 +6,9 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 export const CONTENT = path.join(ROOT, 'content');
 
 export const SECTIONS = {
-  1: { dir: 'notes', label: '笔记' },
-  2: { dir: 'projects', label: '项目' },
-  3: { dir: 'reading', label: '阅读' },
+  notes: { dir: 'notes', label: '笔记' },
+  projects: { dir: 'projects', label: '项目' },
+  reading: { dir: 'reading', label: '阅读' },
 };
 
 export function slugify(value) {
@@ -38,28 +38,6 @@ export function bodyFor(kind, title) {
   }
   return `# ${title}
 `;
-}
-
-export async function promptForPage(ask) {
-  let choice = await ask('写在哪里？ 1) 笔记  2) 项目  3) 阅读', '1');
-  if (!SECTIONS[choice]) choice = '1';
-  const section = SECTIONS[choice];
-
-  let title = '';
-  while (!title) title = await ask('标题');
-
-  const suggested = slugify(title) || `note-${Date.now().toString(36)}`;
-  const rawSlug = await ask('URL 片段（英文短横线）', suggested);
-  const slug = slugify(rawSlug) || suggested;
-  const description = await ask('一句话摘要（可留空）');
-
-  return {
-    section,
-    title,
-    slug,
-    description,
-    date: today(),
-  };
 }
 
 export function createPage(page) {

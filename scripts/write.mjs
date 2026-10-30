@@ -4,23 +4,33 @@ import readline from 'node:readline/promises';
 import { spawnSync } from 'node:child_process';
 import { stdin, stdout } from 'node:process';
 import matter from 'gray-matter';
-import { ROOT, CONTENT, createPage, promptForPage } from './lib.mjs';
+import { ROOT, CONTENT, SECTIONS, createPage, slugify, today } from './lib.mjs';
 
 const args = process.argv.slice(2);
-const dryRun = args.includes('--dry-run');
-const noPush = args.includes('--no-push');
-const targetArg = args.find((arg) => !arg.startsWith('-'));
 
 if (args.includes('--help') || args.includes('-h')) {
   console.log(`用法：
-  npm run write                    新建页面，编辑后自动构建、提交、推送
-  npm run write -- notes/foo       编辑已有页面（可省略 .md）
-  npm run write -- --dry-run       只构建，不提交
-  npm run write -- --no-push       提交，但不 push
+  npm run write                      新建笔记（只问标题）
+  npm run write -- "标题"            直接新建，不问
+  npm run write -- --project "标题"  新建项目
+  npm run write -- --reading "标题"  新建阅读页
+  npm run write -- --slug=my-url "标题"
+  npm run write -- notes/foo         编辑已有页面（可省略 .md）
+  npm run write -- --dry-run         只构建，不提交
+  npm run write -- --no-push         提交，但不 push
 
+默认写进笔记；URL 由标题自动生成；摘要从正文自动提取。
 编辑器：$VISUAL / $EDITOR，默认 code --wait、nano 或 vi。`);
   process.exit(0);
 }
+
+const dryRun = args.includes('--dry-run');
+const noPush = args.includes('--no-push');
+const positional = args.filter((arg) => !arg.startsWith('-'));
+const rawTarget = positional[0] || '';
+const slugOverride = args
+  .find((arg) => arg.startsWith('--slug='))
+  ?.slice('--slug='.length);
 
 const site = JSON.parse(fs.readFileSync(path.join(ROOT, 'site.json'), 'utf8'));
 const siteUrl = String(site.url || '').replace(/\/$/, '');
@@ -87,7 +97,7 @@ function publish(file, title, section) {
   }
 
   if (dryRun) {
-    console.log(`\n--dry-run：构建通过，未提交。`);
+    console.log('\n--dry-run：构建通过，未提交。');
     console.log(`文件：${path.relative(ROOT, file)}`);
     return;
   }
@@ -102,6 +112,10 @@ function publish(file, title, section) {
   });
   if (diff.status === 0) {
     console.log('\n没有检测到改动，跳过提交。');
+    return;
+  }
+  if (diff.status !== 1) {
+    fail('检查 git 改动失败，未提交。');
     return;
   }
 
@@ -129,27 +143,27 @@ function publish(file, title, section) {
 }
 
 let rl = null;
-const ask = async (question, fallback = '') => {
-  const suffix = fallback ? ` (${fallback})` : '';
-  const answer = (await rl.question(`${question}${suffix}: `)).trim();
-  return answer || fallback;
-};
 
 try {
+  const looksLikePath =
+    rawTarget.endsWith('.md') ||
+    rawTarget.startsWith('content/') ||
+    rawTarget.includes('/');
+
   let file;
   let title;
   let section;
   let initial = '';
   let created = false;
 
-  if (targetArg) {
-    file = resolveTarget(targetArg);
+  if (looksLikePath && rawTarget) {
+    file = resolveTarget(rawTarget);
     if (!file.startsWith(`${CONTENT}${path.sep}`) || !fs.existsSync(file)) {
-      fail(`找不到页面：${targetArg}`);
+      fail(`找不到页面：${rawTarget}`);
       process.exit(1);
     }
     if (fs.statSync(file).isDirectory()) {
-      fail(`不是文件：${targetArg}`);
+      fail(`不是文件：${rawTarget}`);
       process.exit(1);
     }
     const parsed = matter(fs.readFileSync(file, 'utf8'));
@@ -157,17 +171,44 @@ try {
     const rel = path.relative(CONTENT, file).split(path.sep).join('/');
     section = rel.includes('/') ? rel.split('/')[0] : 'site';
   } else {
-    rl = readline.createInterface({ input: stdin, output: stdout });
-    console.log('开始写一篇新页面\n');
-    const page = await promptForPage(ask);
-    const result = createPage(page);
-    file = result.file;
-    title = page.title;
-    section = page.section.dir;
-    initial = fs.readFileSync(file, 'utf8');
-    created = true;
-    rl.close();
-    rl = null;
+    const incomingSection = args.includes('--project')
+      ? SECTIONS.projects
+      : args.includes('--reading')
+        ? SECTIONS.reading
+        : SECTIONS.notes;
+
+    title = rawTarget.trim();
+    if (!title) {
+      rl = readline.createInterface({ input: stdin, output: stdout });
+      console.log(`新建${incomingSection.label}\n`);
+      title = (await rl.question('标题: ')).trim();
+      if (!title) {
+        fail('标题不能为空，已取消。');
+        process.exit(1);
+      }
+      rl.close();
+      rl = null;
+    }
+
+    const slug =
+      slugify(slugOverride || title) || `note-${Date.now().toString(36)}`;
+    const page = { section: incomingSection, title, slug, date: today() };
+
+    try {
+      const result = createPage(page);
+      file = result.file;
+      initial = fs.readFileSync(file, 'utf8');
+      created = true;
+      section = incomingSection.dir;
+    } catch (error) {
+      fail(error.message);
+      if (error.code === 'EEXIST') {
+        console.error(
+          `想编辑已有页面：npm run write -- ${incomingSection.dir}/${slug}`,
+        );
+      }
+      process.exit(1);
+    }
 
     console.log(`\n已创建 ${path.relative(ROOT, file)}`);
   }
@@ -190,9 +231,7 @@ try {
 
   publish(file, title, section);
 } catch (error) {
-  if (error?.code === 'EEXIST') {
-    fail(error.message);
-  } else if (error?.code === 'ABORT_ERR' || error?.name === 'AbortError') {
+  if (error?.code === 'ABORT_ERR' || error?.name === 'AbortError') {
     console.log('\n已取消。');
   } else {
     throw error;
