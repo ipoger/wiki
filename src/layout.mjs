@@ -104,7 +104,7 @@ ${editUrl ? `    <p class="page-edit"><a href="${escapeHtml(editUrl)}">编辑此
       <div class="terminal-output" id="terminal-output" role="log" aria-live="polite"></div>
       <div class="terminal-line">
         <span class="terminal-prompt" id="terminal-prompt">guest@wiki:~$</span>
-        <input id="terminal-input" class="terminal-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" aria-label="终端命令" disabled>
+        <input id="terminal-input" class="terminal-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" aria-label="终端命令" placeholder="help / ls / find …">
       </div>
     </div>
     <footer class="terminal-foot">
@@ -114,6 +114,7 @@ ${editUrl ? `    <p class="page-edit"><a href="${escapeHtml(editUrl)}">编辑此
   </section>
 </div>
 
+<script src="${root}terminal-fs.js" defer></script>
 <script src="${root}assets/tasks.js" defer></script>
 <script src="${root}assets/app.js" defer></script>
 <script src="${root}assets/terminal.js" defer></script>

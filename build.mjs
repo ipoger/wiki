@@ -204,10 +204,11 @@ fs.writeFileSync(
   JSON.stringify(searchEntries, null, 0),
 );
 
-// Virtual filesystem for the in-browser terminal.
+// Virtual filesystem for the in-browser terminal. Shipping it as a JS file
+// means the terminal also works from file:// and never waits on a fetch.
 fs.writeFileSync(
-  path.join(DIST, 'terminal-fs.json'),
-  JSON.stringify({ pages: terminalPages }, null, 0),
+  path.join(DIST, 'terminal-fs.js'),
+  `window.__WIKI_TERMINAL_FS__ = ${JSON.stringify({ pages: terminalPages })};\n`,
 );
 
 // GitHub Pages: do not run Jekyll.

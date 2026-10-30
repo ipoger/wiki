@@ -617,6 +617,7 @@ body.terminal-open { overflow: hidden; }
   caret-color: #4f46e5;
 }
 .terminal-input:disabled { opacity: 0.45; }
+.terminal-input::placeholder { color: #cbd5e1; }
 
 .terminal-foot {
   display: flex;

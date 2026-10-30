@@ -8,8 +8,6 @@
   const root = document.documentElement.dataset.root || "./";
 
   let lastFocus = null;
-  let fsLoaded = false;
-  let fsLoading = false;
   let started = false;
   let closeTimer = null;
 
@@ -526,26 +524,15 @@
     }
   });
 
-  function loadFs() {
-    fsLoading = true;
-    fetch(`${root}terminal-fs.json`)
-      .then((response) => {
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.json();
-      })
-      .then((data) => {
-        fs = buildFs(data.pages || []);
-        fsLoaded = true;
-        fsLoading = false;
-        input.disabled = false;
-        updatePrompt();
-        if (!modal.hidden) input.focus({ preventScroll: true });
-      })
-      .catch((err) => {
-        fsLoading = false;
-        error(`终端文件系统加载失败：${err.message}`);
-        error("重新打开终端可以重试。");
-      });
+  function focusInput() {
+    if (modal.hidden) return;
+    input.focus({ preventScroll: true });
+    const end = input.value.length;
+    try {
+      input.setSelectionRange(end, end);
+    } catch {
+      /* selection is not supported by every input implementation */
+    }
   }
 
   function openTerminal() {
@@ -563,17 +550,24 @@
       print(
         '<span class="t-dim">输入 </span><span class="t-cmd-text">help</span><span class="t-dim"> 查看命令，</span><span class="t-cmd-text">ls</span><span class="t-dim"> 浏览目录。</span>',
       );
+      if (!fs) {
+        print(
+          '<span class="t-error">终端数据没有加载。请刷新页面后重试。</span>',
+        );
+      }
       blank();
     }
 
     updatePrompt();
+    // Focus immediately and again after the open transition. This matters on
+    // Windows browsers, which can otherwise keep focus on the trigger button.
+    focusInput();
     requestAnimationFrame(() => {
       modal.classList.add("is-open");
-      if (!input.disabled) input.focus({ preventScroll: true });
+      focusInput();
       out.scrollTop = out.scrollHeight;
     });
-
-    if (!fsLoaded && !fsLoading) loadFs();
+    setTimeout(focusInput, 180);
   }
 
   function closeTerminal() {
@@ -597,11 +591,16 @@
     element.addEventListener("click", closeTerminal);
   });
 
+  const terminalLine = modal.querySelector(".terminal-line");
+  terminalLine?.addEventListener("pointerdown", (event) => {
+    if (event.target !== input) focusInput();
+  });
+
   modal.addEventListener("click", (event) => {
     if (event.target.closest("[data-terminal-close]")) return;
     if (event.target.closest("a")) return;
     if (window.getSelection().toString()) return;
-    if (!input.disabled) input.focus();
+    focusInput();
   });
 
   document.addEventListener("keydown", (event) => {
@@ -621,6 +620,15 @@
       closeTerminal();
     }
   });
+
+  const terminalData = window.__WIKI_TERMINAL_FS__;
+  if (terminalData) {
+    try {
+      fs = buildFs(terminalData.pages || []);
+    } catch (err) {
+      print(`<span class="t-error">终端数据解析失败：${escapeHtml(err.message)}</span>`);
+    }
+  }
 
   updatePrompt();
 })();
