@@ -782,3 +782,106 @@ body.terminal-open { overflow: hidden; }
   .home-featured h2 { font-size: 20px; }
   .home-lede { font-size: 16px; }
 }
+
+/* ---------- reading citations ---------- */
+
+.citation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 1.4em 0 2.2em;
+}
+
+.wiki a.citation {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--link) 2.5%, transparent);
+  color: var(--text);
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+.wiki a.citation:hover {
+  border-color: color-mix(in srgb, var(--link) 32%, var(--border));
+  background: color-mix(in srgb, var(--link) 5%, transparent);
+}
+.wiki a.citation:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--link) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.cite-index {
+  flex: 0 0 20px;
+  padding-top: 3px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.cite-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.cite-title {
+  display: block;
+  color: var(--heading);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.cite-meta {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.cite-status {
+  display: inline-block;
+  margin-left: 2px;
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--muted);
+  font-size: 9.5px;
+  letter-spacing: 0.02em;
+}
+
+.cite-note {
+  display: block;
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.cite-arrow {
+  align-self: center;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+.wiki a.citation:hover .cite-arrow {
+  color: var(--link);
+  transform: translate(1px, -1px);
+}
+
+@media (max-width: 640px) {
+  .citation-list { gap: 8px; margin: 1.2em 0 1.8em; }
+  .wiki a.citation { gap: 10px; padding: 12px 13px; }
+  .cite-index { flex-basis: 17px; font-size: 10px; }
+  .cite-title { font-size: 15px; }
+  .cite-meta { font-size: 10px; }
+  .cite-note { font-size: 13.5px; }
+}
